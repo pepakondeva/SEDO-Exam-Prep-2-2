@@ -37,18 +37,9 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    dotnet test \
-                        --no-build \
-                        --logger "trx;LogFileName=test_results.trx"
-                '''
+                sh 'dotnet test'
             }
         }
     }
 
-    post {
-        always {
-            junit '**/test_results.trx'
-        }
-    }
 }
