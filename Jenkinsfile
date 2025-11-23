@@ -1,33 +1,33 @@
 pipeline {
     agent any
 
+    environment {
+        DOTNET_ROOT = "${WORKSPACE}/dotnet"
+        PATH = "${WORKSPACE}/dotnet:${env.PATH}"
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-       stage('Install .NET 6 SDK') {
-           steps {
-               sh '''
-               curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
-               bash dotnet-install.sh --channel 6.0 --install-dir $WORKSPACE/dotnet
-               export PATH="$WORKSPACE/dotnet:$PATH"
-               '''
-           }
-       }
-
-
-        stage('Restore') {
+        stage('Install .NET 6 SDK') {
             steps {
                 sh '''
-                export PATH="$WORKSPACE/dotnet:$PATH"
-                dotnet restore
+                    curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
+                    bash dotnet-install.sh --channel 6.0 --install-dir "$DOTNET_ROOT"
                 '''
             }
         }
 
+        stage('Restore') {
+            steps {
+                sh 'dotnet restore'
+            }
+        }
 
         stage('Build') {
             steps {
@@ -37,14 +37,18 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh 'dotnet test HouseRentingSystem.Tests/HouseRentingSystem.Tests.csproj --no-build'
+                sh '''
+                    dotnet test \
+                        --no-build \
+                        --logger "trx;LogFileName=test_results.trx"
+                '''
             }
         }
     }
 
     post {
         always {
-            junit '**/TestResults/*.xml'
+            junit '**/test_results.trx'
         }
     }
 }
