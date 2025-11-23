@@ -1,8 +1,8 @@
-name: Build and run unit test 
+name: Build and run integration test
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "staging" ]
 
 jobs:
   build:
@@ -20,4 +20,4 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test HouseRentingSystem.UnitTests/HouseRentingSystem.UnitTests.csproj
+      run: dotnet test HouseRentingSystem.Tests/HouseRentingSystem.Tests.csproj
